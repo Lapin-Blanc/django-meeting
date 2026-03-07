@@ -7,7 +7,9 @@
       "Bash(.venv/bin/python manage.py migrate)",
       "Bash(.venv/bin/python manage.py makemigrations)",
       "Bash(timeout 10 .venv/bin/python manage.py runserver 8001)",
-      "Bash(.venv/bin/python manage.py check)"
+      "Bash(.venv/bin/python manage.py check)",
+      "Bash(*)",
+      "Bash(.venv/bin/python manage.py makemigrations polls)"
     ]
   }
 }
