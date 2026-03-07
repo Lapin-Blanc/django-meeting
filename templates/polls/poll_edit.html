@@ -38,7 +38,20 @@
     </div>
 
     <div class="form-section card">
-        <h2>Nouveaux participants</h2>
+        <h2>Participants</h2>
+        {% if poll.participants.all %}
+        <div class="existing-participants-list">
+            <p class="help-text">Participants actuels :</p>
+            <ul class="participant-list">
+                {% for p in poll.participants.all %}
+                <li class="participant-item">
+                    <span class="participant-name">{{ p.name }}</span>
+                    <span class="participant-email">{{ p.email }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         <p class="help-text">Ajoutez de nouveaux participants (les participants existants ne seront pas modifiés).</p>
         <input type="hidden" name="participants_json" id="id_participants_json" value="[]">
         <div id="new-participants"></div>
@@ -54,8 +67,8 @@
 
 {% block extra_js %}
 <script>
-const EXISTING_SLOTS = {{ slots_json }};
-const EXISTING_PARTICIPANTS = {{ existing_participants }};
+const EXISTING_SLOTS = {{ slots_json|safe }};
+const EXISTING_PARTICIPANTS = {{ existing_participants|safe }};
 </script>
 <script src="{% static 'js/calendar_create.js' %}"></script>
 <script>

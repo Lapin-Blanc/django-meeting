@@ -51,13 +51,14 @@
     const choice = voteState[slotId] || '';
     const viewType = info.view.type;
 
-    // Month view: compact single-line (dot event in dayGridMonth is ~18px tall,
-    // buttons don't fit — use click-to-cycle interaction instead)
+    // Month view: compact single-line with explicit background color
+    // (dayGridMonth renders timed events as dot+text, backgroundColor not shown as block)
     if (viewType === 'dayGridMonth') {
       const icon = isChosen ? '★' : choice === 'yes' ? '✓' : choice === 'maybe' ? '?' : choice === 'no' ? '✗' : '';
-      const el = document.createElement('span');
+      const el = document.createElement('div');
       el.className = 'fc-vote-compact';
       el.title = !isClosed ? 'Cliquez pour voter' : '';
+      el.style.backgroundColor = info.event.backgroundColor;
       const timeSpan = document.createElement('span');
       timeSpan.className = 'fc-vote-compact-time';
       timeSpan.textContent = info.timeText;

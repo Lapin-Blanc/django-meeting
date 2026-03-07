@@ -8,10 +8,17 @@
         :root {
             --color-primary: {{ site_config.primary_color }};
             --color-secondary: {{ site_config.secondary_color }};
+            --color-header-text: {{ site_config.header_text_color }};
+            --logo-height: {{ site_config.logo_height }}px;
         }
     </style>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% if site_config.favicon %}
+        <link rel="icon" type="image/png" href="{{ site_config.favicon.url }}">
+    {% elif site_config.logo %}
+        <link rel="icon" type="image/png" href="{{ site_config.logo.url }}">
+    {% endif %}
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -20,9 +27,8 @@
             <a href="/" class="site-brand">
                 {% if site_config.logo %}
                     <img src="{{ site_config.logo.url }}" alt="{{ site_config.site_name }}" class="site-logo">
-                {% else %}
-                    <span class="site-name">{{ site_config.site_name }}</span>
                 {% endif %}
+                <span class="site-name">{{ site_config.site_name }}</span>
             </a>
             <nav class="site-nav">
                 {% if user.is_authenticated %}

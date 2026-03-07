@@ -146,6 +146,11 @@
   calendar.render();
   updateHiddenField();
 
+  // Navigate to first existing slot when editing
+  if (slots.length > 0) {
+    calendar.gotoDate(slots[0].start);
+  }
+
   // Serialize before form submit
   const form = document.getElementById('poll-create-form') || document.getElementById('poll-edit-form');
   if (form) {

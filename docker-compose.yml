@@ -2,7 +2,7 @@ services:
   web:
     build: .
     ports:
-      - "8768:8768"
+      - "${DJANGO_BIND_HOST:-0.0.0.0}:${DJANGO_PORT:-8768}:${DJANGO_PORT:-8768}"
     volumes:
       - ./db_data:/data
       - ./media_data:/app/media
