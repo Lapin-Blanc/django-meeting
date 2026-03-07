@@ -1,0 +1,14 @@
+Bonjour {{ participant.name }},
+
+RAPPEL : vous n'avez pas encore voté pour le sondage « {{ poll.title }} ».
+
+Date limite de vote : {{ poll.deadline|date:"d/m/Y à H:i" }}
+{% if poll.description %}{{ poll.description }}
+{% endif %}{% if poll.location %}Lieu : {{ poll.location }}
+{% endif %}
+Pour indiquer vos disponibilités, cliquez sur le lien suivant :
+{{ vote_url }}
+
+Ce lien est personnel et unique, ne le partagez pas.
+
+— {{ site_config.site_name }}

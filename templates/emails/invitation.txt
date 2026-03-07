@@ -1,0 +1,15 @@
+Bonjour {{ participant.name }},
+
+Vous êtes invité(e) à voter pour la planification d'une réunion.
+
+SONDAGE : {{ poll.title }}
+{% if poll.description %}{{ poll.description }}
+{% endif %}{% if poll.location %}Lieu : {{ poll.location }}
+{% endif %}Date limite de vote : {{ poll.deadline|date:"d/m/Y à H:i" }}
+
+Pour indiquer vos disponibilités, cliquez sur le lien suivant :
+{{ vote_url }}
+
+Ce lien est personnel et unique, ne le partagez pas.
+
+— {{ site_config.site_name }}

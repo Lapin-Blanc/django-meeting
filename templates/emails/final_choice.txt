@@ -1,0 +1,12 @@
+Bonjour {{ participant.name }},
+
+Le créneau a été retenu pour la réunion « {{ poll.title }} » :
+
+Date : {{ chosen_slot.start|date:"l d/m/Y" }}
+Heure : {{ chosen_slot.start|date:"H:i" }} – {{ chosen_slot.end|date:"H:i" }}
+{% if poll.location %}Lieu : {{ poll.location }}
+{% endif %}
+Pour consulter les détails du sondage :
+{{ vote_url }}
+
+— {{ site_config.site_name }}

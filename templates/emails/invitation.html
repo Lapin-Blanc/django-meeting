@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; color: #1a1a2e; max-width: 600px; margin: 0 auto; }
+        .header { background: {{ site_config.primary_color }}; padding: 1.5rem; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 1.5rem; }
+        .content { padding: 2rem; }
+        .btn { display: inline-block; padding: 0.75rem 1.5rem; background: {{ site_config.primary_color }}; color: white; text-decoration: none; border-radius: 0.375rem; font-weight: bold; }
+        .poll-info { background: #f8fafc; border-left: 4px solid {{ site_config.primary_color }}; padding: 1rem; margin: 1rem 0; }
+        .footer { background: #1e293b; color: #94a3b8; padding: 1rem; text-align: center; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ site_config.site_name }}</h1>
+    </div>
+    <div class="content">
+        <p>Bonjour {{ participant.name }},</p>
+        <p>Vous êtes invité(e) à voter pour la planification d'une réunion.</p>
+
+        <div class="poll-info">
+            <p><strong>{{ poll.title }}</strong></p>
+            {% if poll.description %}<p>{{ poll.description }}</p>{% endif %}
+            {% if poll.location %}<p>Lieu : {{ poll.location }}</p>{% endif %}
+            <p>Date limite de vote : {{ poll.deadline|date:"d/m/Y à H:i" }}</p>
+        </div>
+
+        <p>Cliquez sur le bouton ci-dessous pour indiquer vos disponibilités :</p>
+        <p style="text-align: center;">
+            <a href="{{ vote_url }}" class="btn">Voter maintenant</a>
+        </p>
+        <p><small>Ou copiez ce lien dans votre navigateur : <a href="{{ vote_url }}">{{ vote_url }}</a></small></p>
+    </div>
+    <div class="footer">
+        <p>{{ site_config.site_name }} — Ce lien est personnel et unique, ne le partagez pas.</p>
+    </div>
+</body>
+</html>
