@@ -3,6 +3,44 @@
 {% block title %}Mes sondages — {{ site_config.site_name }}{% endblock %}
 
 {% block content %}
-<h1>Mes sondages</h1>
-<p>Les sondages seront affichés ici (implémentation à l'étape 5).</p>
+<div class="page-header">
+    <h1>Mes sondages</h1>
+    <a href="{% url 'polls:poll_create' %}" class="btn btn-primary">+ Nouveau sondage</a>
+</div>
+
+{% if polls %}
+    <div class="poll-list">
+        {% for poll in polls %}
+            <div class="card poll-card">
+                <div class="poll-card-header">
+                    <h2 class="poll-card-title">
+                        <a href="{% url 'polls:poll_detail' poll.pk %}">{{ poll.title }}</a>
+                    </h2>
+                    <span class="badge {% if poll.is_active %}badge-active{% else %}badge-closed{% endif %}">
+                        {% if poll.is_active %}Actif{% else %}Clôturé{% endif %}
+                    </span>
+                </div>
+                <div class="poll-card-meta">
+                    {% if poll.location %}
+                        <span>{{ poll.location }}</span>
+                    {% endif %}
+                    <span>Date limite : {{ poll.deadline|date:"d/m/Y H:i" }}</span>
+                    <span>{{ poll.participants.count }} participant{{ poll.participants.count|pluralize }}</span>
+                    <span>{{ poll.time_slots.count }} créneau{{ poll.time_slots.count|pluralize:"x" }}</span>
+                </div>
+                <div class="poll-card-footer">
+                    <a href="{% url 'polls:poll_detail' poll.pk %}" class="btn btn-primary">Voir le récapitulatif</a>
+                    {% if poll.is_active %}
+                        <a href="{% url 'polls:poll_edit' poll.pk %}" class="btn btn-outline-dark">Modifier</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state card">
+        <p>Vous n'avez pas encore créé de sondage.</p>
+        <a href="{% url 'polls:poll_create' %}" class="btn btn-primary">Créer mon premier sondage</a>
+    </div>
+{% endif %}
 {% endblock %}

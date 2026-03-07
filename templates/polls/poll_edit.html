@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier — {{ poll.title }} — {{ site_config.site_name }}{% endblock %}
+
+{% block extra_head %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Modifier « {{ poll.title }} »</h1>
+    <a href="{% url 'polls:poll_detail' poll.pk %}" class="btn btn-cancel">Annuler</a>
+</div>
+
+<form method="post" id="poll-edit-form">
+    {% csrf_token %}
+
+    <div class="form-section card">
+        <h2>Informations générales</h2>
+        {% for field in poll_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <ul class="form-errors">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="form-section card">
+        <h2>Créneaux horaires</h2>
+        <p class="help-text">Cliquez-glissez pour ajouter des créneaux. Les créneaux supprimés perdront tous leurs votes associés.</p>
+        <input type="hidden" name="time_slots_json" id="id_time_slots_json" value="{{ slots_json }}">
+        <div id="calendar"></div>
+    </div>
+
+    <div class="form-section card">
+        <h2>Nouveaux participants</h2>
+        <p class="help-text">Ajoutez de nouveaux participants (les participants existants ne seront pas modifiés).</p>
+        <input type="hidden" name="participants_json" id="id_participants_json" value="[]">
+        <div id="new-participants"></div>
+        <button type="button" id="add-participant" class="btn btn-outline-dark">+ Ajouter un participant</button>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+        <a href="{% url 'polls:poll_detail' poll.pk %}" class="btn btn-cancel">Annuler</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const EXISTING_SLOTS = {{ slots_json }};
+const EXISTING_PARTICIPANTS = {{ existing_participants }};
+</script>
+<script src="{% static 'js/calendar_create.js' %}"></script>
+<script>
+// New participants management
+const newParticipants = [];
+document.getElementById('add-participant').addEventListener('click', function() {
+    const container = document.getElementById('new-participants');
+    const idx = newParticipants.length;
+    newParticipants.push({name: '', email: ''});
+    const row = document.createElement('div');
+    row.className = 'participant-row';
+    row.innerHTML = `
+        <div class="form-group form-inline">
+            <label>Nom</label>
+            <input type="text" class="form-control p-name" placeholder="Nom" data-idx="${idx}">
+        </div>
+        <div class="form-group form-inline">
+            <label>Email</label>
+            <input type="email" class="form-control p-email" placeholder="email@exemple.com" data-idx="${idx}">
+        </div>
+    `;
+    container.appendChild(row);
+});
+
+document.getElementById('poll-edit-form').addEventListener('submit', function() {
+    const rows = document.querySelectorAll('#new-participants .participant-row');
+    const participants = [];
+    rows.forEach(function(row) {
+        const name = row.querySelector('.p-name').value.trim();
+        const email = row.querySelector('.p-email').value.trim();
+        if (name && email) participants.push({name, email});
+    });
+    document.getElementById('id_participants_json').value = JSON.stringify(participants);
+});
+</script>
+{% endblock %}

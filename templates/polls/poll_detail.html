@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load poll_extras %}
+
+{% block title %}{{ poll.title }} — {{ site_config.site_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ poll.title }}</h1>
+        {% if poll.location %}<p class="poll-location">{{ poll.location }}</p>{% endif %}
+        {% if poll.description %}<p class="poll-description">{{ poll.description }}</p>{% endif %}
+    </div>
+    <div class="page-actions">
+        <span class="badge {% if poll.is_active %}badge-active{% else %}badge-closed{% endif %}">
+            {% if poll.is_active %}Actif{% else %}Clôturé{% endif %}
+        </span>
+        {% if poll.is_active %}
+            <a href="{% url 'polls:poll_edit' poll.pk %}" class="btn btn-outline-dark">Modifier</a>
+        {% endif %}
+        <a href="{% url 'polls:poll_delete' poll.pk %}" class="btn btn-danger">Supprimer</a>
+    </div>
+</div>
+
+<div class="poll-meta card">
+    <div class="meta-grid">
+        <div>
+            <strong>Date limite :</strong> {{ poll.deadline|date:"d/m/Y H:i" }}
+        </div>
+        <div>
+            <strong>Créé le :</strong> {{ poll.created_at|date:"d/m/Y" }}
+        </div>
+        {% if poll.closed_at %}
+        <div>
+            <strong>Clôturé le :</strong> {{ poll.closed_at|date:"d/m/Y H:i" }}
+        </div>
+        {% endif %}
+        {% if poll.chosen_slot %}
+        <div class="chosen-slot">
+            <strong>Créneau retenu :</strong>
+            {{ poll.chosen_slot.start|date:"d/m/Y H:i" }} – {{ poll.chosen_slot.end|date:"H:i" }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if poll.is_active %}
+<div class="action-bar card">
+    <form method="post" action="{% url 'polls:poll_close' poll.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning"
+                onclick="return confirm('Clôturer ce sondage ? Les participants ne pourront plus modifier leurs votes.')">
+            Clôturer le sondage
+        </button>
+    </form>
+    {% if non_respondents %}
+        <form method="post" action="{% url 'polls:poll_remind' poll.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-dark">
+                Relancer les non-répondants ({{ non_respondents|length }})
+            </button>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Recap table -->
+<div class="card recap-section">
+    <h2>Récapitulatif des votes</h2>
+    {% if time_slots %}
+        <div class="table-responsive">
+            <table class="table recap-table">
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        {% for slot in time_slots %}
+                            <th class="slot-header {% if slot.score == best_score and best_score > 0 %}best-slot{% endif %}">
+                                <div>{{ slot.start|date:"d/m H:i" }}</div>
+                                <div class="slot-end">{{ slot.end|date:"H:i" }}</div>
+                                <div class="slot-score">Score : {{ slot.score }}</div>
+                                {% if not poll.is_closed %}
+                                    <form method="post" action="{% url 'polls:poll_choose_slot' poll.pk slot.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-primary"
+                                                {% if poll.chosen_slot == slot %}style="font-weight:bold"{% endif %}>
+                                            {% if poll.chosen_slot == slot %}✓ Retenu{% else %}Retenir{% endif %}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in participants %}
+                        <tr>
+                            <td>
+                                {{ participant.name }}
+                                {% if not participant.has_voted %}
+                                    <span class="badge badge-warning">Pas encore voté</span>
+                                {% endif %}
+                            </td>
+                            {% for slot in time_slots %}
+                                {% get_vote vote_matrix participant.id slot.pk as v %}
+                                <td class="vote-cell vote-{{ v }}">
+                                    {% if v == 'yes' %}✓{% elif v == 'maybe' %}?{% elif v == 'no' %}✗{% else %}—{% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>Aucun créneau défini pour ce sondage.</p>
+    {% endif %}
+</div>
+
+<!-- Non-respondents -->
+{% if non_respondents %}
+<div class="card">
+    <h2>Participants n'ayant pas encore voté</h2>
+    <ul class="participant-list">
+        {% for p in non_respondents %}
+            <li>{{ p.name }} ({{ p.email }})</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if poll.is_closed and not poll.chosen_slot %}
+<div class="card">
+    <h2>Choisir le créneau final</h2>
+    <p>Le sondage est clôturé. Sélectionnez le créneau retenu dans le tableau ci-dessus (bouton "Retenir").</p>
+</div>
+{% endif %}
+{% endblock %}
