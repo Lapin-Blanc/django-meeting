@@ -542,29 +542,16 @@ body {
 
 .fc-event-time-custom { font-size: 0.78rem; opacity: 0.9; }
 
-/* Vote mode event — month view compact */
-.fc-month-event {
-    display: flex;
-    align-items: center;
-    padding: 1px 4px;
-    height: 100%;
-    width: 100%;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: white;
-    white-space: nowrap;
-    overflow: hidden;
-    gap: 3px;
-}
-
-/* Vote mode event — week/day view */
+/* Vote mode event — layout horizontal unique (fonctionne mois ET semaine) */
 .fc-vote-event {
     display: flex;
-    flex-direction: column;
-    padding: 2px 4px;
-    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px 4px;
+    padding: 1px 3px;
     width: 100%;
-    gap: 2px;
+    overflow: hidden;
 }
 
 .fc-vote-icons {

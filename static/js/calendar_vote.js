@@ -49,46 +49,20 @@
     const slotId = info.event.extendedProps.slotId;
     const isChosen = info.event.extendedProps.isChosen;
     const choice = voteState[slotId] || '';
-    const isMonthView = info.view.type === 'dayGridMonth';
 
-    // ── Month view: compact single-line (time + choice symbol, click cycles through choices) ──
-    if (isMonthView) {
-      const choiceSymbol = choice === 'yes' ? ' ✓' : choice === 'maybe' ? ' ?' : choice === 'no' ? ' ✗' : '';
-      const container = document.createElement('div');
-      container.className = 'fc-month-event';
-
-      const inner = document.createElement('span');
-      inner.textContent = info.timeText + choiceSymbol;
-      if (isChosen) inner.textContent += ' ★';
-      container.appendChild(inner);
-
-      if (!isClosed) {
-        container.title = 'Cliquer pour changer le vote';
-        container.style.cursor = 'pointer';
-        container.addEventListener('click', function (e) {
-          e.stopPropagation();
-          const order = ['', 'yes', 'maybe', 'no'];
-          const next = order[(order.indexOf(choice) + 1) % order.length];
-          voteState[slotId] = next;
-          calendar.refetchEvents();
-        });
-      }
-
-      return { domNodes: [container] };
-    }
-
-    // ── Week/day view: full interactive content ──
-    const timeEl = document.createElement('div');
-    timeEl.className = 'fc-event-time-custom';
-    timeEl.textContent = info.timeText;
-
+    // Single layout: horizontal row (time + icons) works in all views
     const container = document.createElement('div');
     container.className = 'fc-vote-event';
+
+    const timeEl = document.createElement('span');
+    timeEl.className = 'fc-event-time-custom';
+    timeEl.textContent = info.timeText;
+    container.appendChild(timeEl);
 
     if (isChosen) {
       const badge = document.createElement('span');
       badge.className = 'fc-chosen-badge';
-      badge.textContent = '★ Retenu';
+      badge.textContent = '★';
       container.appendChild(badge);
     }
 
@@ -106,8 +80,6 @@
         btn.className = 'vote-icon ' + opt.cls + (choice === opt.value ? ' active' : '');
         btn.textContent = opt.label;
         btn.title = opt.value === 'yes' ? 'Oui' : opt.value === 'maybe' ? 'Peut-être' : 'Non';
-        btn.dataset.slot = slotId;
-        btn.dataset.choice = opt.value;
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
           voteState[slotId] = opt.value;
@@ -116,10 +88,7 @@
         icons.appendChild(btn);
       });
 
-      container.appendChild(timeEl);
       container.appendChild(icons);
-    } else {
-      container.appendChild(timeEl);
     }
 
     return { domNodes: [container] };
