@@ -554,31 +554,30 @@ body {
 
 .fc-vote-icons {
     display: flex;
-    gap: 2px;
+    gap: 3px;
+    flex-wrap: nowrap;
 }
 
 .vote-icon {
-    min-width: 28px;
-    min-height: 28px;
-    /* Minimum 44×44px tap target area via padding compensation */
-    padding: 8px;
-    margin: -8px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin: 0;
     background: rgba(255,255,255,0.2);
     border: 1.5px solid rgba(255,255,255,0.4);
     color: white;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.1s, border-color 0.1s, transform 0.1s;
-    position: relative;
-    z-index: 1;
+    flex-shrink: 0;
+    transition: background 0.1s, border-color 0.1s;
 }
 
-.vote-icon:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+.vote-icon:hover { background: rgba(255,255,255,0.4); }
 
 .vote-icon.active {
     background: white;
@@ -602,12 +601,25 @@ body {
 .vote-maybe-label { color: #d97706; }
 .vote-no-label    { color: #dc2626; }
 
-/* Vote actions */
-.vote-actions {
+/* Vote card header (title + save button inline) */
+.vote-card-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 1rem;
-    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.vote-card-header h2 { margin: 0 0 0.25rem; }
+.vote-card-header .help-text { margin: 0; }
+
+.vote-save-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
 }
 
 .save-status {
@@ -655,6 +667,10 @@ body {
     .page-actions { margin-top: 0.5rem; }
 
     .poll-card-header { flex-direction: column; align-items: flex-start; }
+
+    .vote-card-header { flex-direction: column; }
+    .vote-save-area { align-items: flex-start; width: 100%; }
+    .vote-save-area .btn { width: 100%; justify-content: center; }
 
     .meta-grid { grid-template-columns: 1fr !important; }
 

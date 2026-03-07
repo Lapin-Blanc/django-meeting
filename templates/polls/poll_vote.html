@@ -19,21 +19,24 @@
 </div>
 
 <div class="card">
-    <h2>Bonjour {{ participant.name }}, indiquez vos disponibilités</h2>
-    <p class="help-text">
-        Pour chaque créneau, cliquez sur une icône :
-        <strong class="vote-yes-label">✓ Oui</strong>,
-        <strong class="vote-maybe-label">? Peut-être</strong>,
-        <strong class="vote-no-label">✗ Non</strong>.
-        Gris = pas encore voté.
-    </p>
+    <div class="vote-card-header">
+        <div>
+            <h2>Bonjour {{ participant.name }}, indiquez vos disponibilités</h2>
+            <p class="help-text">
+                Pour chaque créneau, cliquez sur une icône :
+                <strong class="vote-yes-label">✓ Oui</strong>,
+                <strong class="vote-maybe-label">? Peut-être</strong>,
+                <strong class="vote-no-label">✗ Non</strong>.
+                Gris = pas encore voté.
+            </p>
+        </div>
+        <div class="vote-save-area">
+            <button id="save-votes" class="btn btn-primary">Enregistrer mes disponibilités</button>
+            <span id="save-status" class="save-status"></span>
+        </div>
+    </div>
 
     <div id="calendar"></div>
-
-    <div class="vote-actions">
-        <button id="save-votes" class="btn btn-primary">Enregistrer mes disponibilités</button>
-        <span id="save-status" class="save-status"></span>
-    </div>
 </div>
 
 {% if summary %}
