@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ poll.title }} — Résultats — {{ site_config.site_name }}{% endblock %}
+
+{% block extra_head %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ poll.title }}</h1>
+        {% if poll.location %}<p class="poll-location">{{ poll.location }}</p>{% endif %}
+        {% if poll.description %}<p class="poll-description">{{ poll.description }}</p>{% endif %}
+    </div>
+    <span class="badge badge-closed">Clôturé</span>
+</div>
+
+{% if poll.chosen_slot %}
+<div class="card chosen-slot-banner">
+    <h2>Créneau retenu</h2>
+    <div class="chosen-slot-details">
+        <strong>{{ poll.chosen_slot.start|date:"l d/m/Y" }}</strong>
+        {{ poll.chosen_slot.start|date:"H:i" }} – {{ poll.chosen_slot.end|date:"H:i" }}
+        {% if poll.location %}<br>Lieu : {{ poll.location }}{% endif %}
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <p>Ce sondage est clôturé. Le créneau final n'a pas encore été sélectionné par l'organisateur.</p>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Vos votes</h2>
+    <p>Le sondage est clôturé. Voici vos disponibilités enregistrées.</p>
+    <div id="calendar"></div>
+</div>
+
+{% if summary %}
+<div class="card">
+    <h2>Résumé des votes (anonyme)</h2>
+    <div class="table-responsive">
+        <table class="table summary-table">
+            <thead>
+                <tr>
+                    <th>Créneau</th>
+                    <th class="text-center vote-yes-label">Oui</th>
+                    <th class="text-center vote-maybe-label">Peut-être</th>
+                    <th class="text-center vote-no-label">Non</th>
+                    <th class="text-center">Sans réponse</th>
+                    <th class="text-center">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in summary %}
+                    <tr {% if poll.chosen_slot and poll.chosen_slot == item.slot %}class="chosen-row"{% endif %}>
+                        <td>
+                            {{ item.slot.start|date:"d/m H:i" }}–{{ item.slot.end|date:"H:i" }}
+                            {% if poll.chosen_slot and poll.chosen_slot == item.slot %}
+                                <span class="badge badge-active">Retenu</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center vote-yes-label">{{ item.yes }}</td>
+                        <td class="text-center vote-maybe-label">{{ item.maybe }}</td>
+                        <td class="text-center vote-no-label">{{ item.no }}</td>
+                        <td class="text-center">{{ item.no_answer }}</td>
+                        <td class="text-center"><strong>{{ item.score }}</strong></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const POLL_SLOTS = {{ slots_json|safe }};
+const IS_CLOSED = true;
+const CHOSEN_SLOT_ID = "{% if poll.chosen_slot %}{{ poll.chosen_slot.id }}{% endif %}";
+</script>
+<script src="{% static 'js/calendar_vote.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ poll.title }} — Vote — {{ site_config.site_name }}{% endblock %}
+
+{% block extra_head %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ poll.title }}</h1>
+        {% if poll.location %}<p class="poll-location">{{ poll.location }}</p>{% endif %}
+        {% if poll.description %}<p class="poll-description">{{ poll.description }}</p>{% endif %}
+        <p class="poll-deadline">Date limite de vote : <strong>{{ poll.deadline|date:"d/m/Y à H:i" }}</strong></p>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Bonjour {{ participant.name }}, indiquez vos disponibilités</h2>
+    <p class="help-text">
+        Pour chaque créneau, cliquez sur une icône :
+        <strong class="vote-yes-label">✓ Oui</strong>,
+        <strong class="vote-maybe-label">? Peut-être</strong>,
+        <strong class="vote-no-label">✗ Non</strong>.
+        Gris = pas encore voté.
+    </p>
+
+    <div id="calendar"></div>
+
+    <div class="vote-actions">
+        <button id="save-votes" class="btn btn-primary">Enregistrer mes disponibilités</button>
+        <span id="save-status" class="save-status"></span>
+    </div>
+</div>
+
+{% if summary %}
+<div class="card">
+    <h2>Résumé des votes (anonyme)</h2>
+    <div class="table-responsive">
+        <table class="table summary-table">
+            <thead>
+                <tr>
+                    <th>Créneau</th>
+                    <th class="text-center vote-yes-label">Oui</th>
+                    <th class="text-center vote-maybe-label">Peut-être</th>
+                    <th class="text-center vote-no-label">Non</th>
+                    <th class="text-center">Sans réponse</th>
+                    <th class="text-center">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in summary %}
+                    <tr>
+                        <td>
+                            {{ item.slot.start|date:"d/m H:i" }}–{{ item.slot.end|date:"H:i" }}
+                        </td>
+                        <td class="text-center vote-yes-label">{{ item.yes }}</td>
+                        <td class="text-center vote-maybe-label">{{ item.maybe }}</td>
+                        <td class="text-center vote-no-label">{{ item.no }}</td>
+                        <td class="text-center">{{ item.no_answer }}</td>
+                        <td class="text-center"><strong>{{ item.score }}</strong></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const POLL_SLOTS = {{ slots_json|safe }};
+const VOTE_SUBMIT_URL = "{% url 'polls:poll_vote_submit' poll.id participant.token %}";
+const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+<script src="{% static 'js/calendar_vote.js' %}"></script>
+{% endblock %}

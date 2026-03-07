@@ -245,28 +245,144 @@ def poll_remind(request, pk):
 
 
 # ============================================================
-# Participant views (step 7) — stubs until fully implemented
+# Participant views
 # ============================================================
 
 def poll_vote(request, poll_id, token):
-    """Interface de vote pour les participants (implémentée à l'étape 7)."""
-    from django.http import HttpResponse
+    """
+    Display vote interface or read-only view for a participant.
+    The token acts as authentication — no login required.
+    """
     poll = get_object_or_404(Poll, pk=poll_id)
     participant = get_object_or_404(Participant, poll=poll, token=token)
-    return HttpResponse('Interface de vote — disponible à l\'étape 7.')
+
+    time_slots = poll.time_slots.all()
+
+    # Build existing votes dict: {str(slot_id): choice}
+    existing_votes = {str(v.time_slot_id): v.choice for v in participant.votes.all()}
+
+    # Build time slots data for FullCalendar (JSON)
+    slots_data = []
+    for slot in time_slots:
+        vote_choice = existing_votes.get(str(slot.id), '')
+        slots_data.append({
+            'id': str(slot.id),
+            'start': slot.start.isoformat(),
+            'end': slot.end.isoformat(),
+            'choice': vote_choice,
+        })
+
+    # Compute summary (anonymized counts per slot)
+    summary = []
+    all_participants_count = poll.participants.count()
+    for slot in time_slots:
+        votes = list(slot.votes.all())
+        yes = sum(1 for v in votes if v.choice == Vote.CHOICE_YES)
+        maybe = sum(1 for v in votes if v.choice == Vote.CHOICE_MAYBE)
+        no = sum(1 for v in votes if v.choice == Vote.CHOICE_NO)
+        no_answer = all_participants_count - len(votes)
+        summary.append({
+            'slot': slot,
+            'yes': yes,
+            'maybe': maybe,
+            'no': no,
+            'no_answer': no_answer,
+            'score': slot.score,
+        })
+    # Sort summary by score descending
+    summary.sort(key=lambda x: x['score'], reverse=True)
+
+    import json as _json
+    context = {
+        'poll': poll,
+        'participant': participant,
+        'time_slots': time_slots,
+        'slots_json': _json.dumps(slots_data),
+        'existing_votes': existing_votes,
+        'summary': summary,
+        'is_closed': not poll.is_active,
+    }
+
+    if not poll.is_active:
+        return render(request, 'polls/poll_closed.html', context)
+    return render(request, 'polls/poll_vote.html', context)
 
 
 def poll_vote_submit(request, poll_id, token):
-    """Soumission des votes (implémentée à l'étape 7)."""
-    from django.http import HttpResponse
-    return HttpResponse('Soumission de votes — disponible à l\'étape 7.')
+    """
+    Submit votes for a participant (POST only).
+    Accepts JSON body or form data with vote choices.
+    """
+    import json as _json
+    from django.http import JsonResponse
+
+    poll = get_object_or_404(Poll, pk=poll_id)
+    participant = get_object_or_404(Participant, poll=poll, token=token)
+
+    if not poll.is_active:
+        return JsonResponse({'error': 'Ce sondage est clôturé.'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Méthode non autorisée.'}, status=405)
+
+    # Parse votes from JSON or form data
+    try:
+        body = _json.loads(request.body)
+        votes_data = body.get('votes', {})
+    except (ValueError, _json.JSONDecodeError):
+        votes_data = {k: v for k, v in request.POST.items() if k.startswith('slot_')}
+        votes_data = {k.replace('slot_', ''): v for k, v in votes_data.items()}
+
+    valid_choices = {Vote.CHOICE_YES, Vote.CHOICE_MAYBE, Vote.CHOICE_NO}
+    time_slot_ids = set(str(s.id) for s in poll.time_slots.all())
+
+    for slot_id_str, choice in votes_data.items():
+        if slot_id_str not in time_slot_ids or choice not in valid_choices:
+            continue
+        try:
+            slot = poll.time_slots.get(id=slot_id_str)
+        except Exception:
+            continue
+        Vote.objects.update_or_create(
+            participant=participant,
+            time_slot=slot,
+            defaults={'choice': choice},
+        )
+
+    # Update participant status
+    participant.has_voted = True
+    participant.last_voted_at = timezone.now()
+    participant.save()
+
+    return JsonResponse({'status': 'ok', 'message': 'Votes enregistrés avec succès.'})
 
 
 # ============================================================
-# API (step 8) — stub until fully implemented
+# API
 # ============================================================
 
 def poll_summary_api(request, pk):
-    """API JSON des compteurs anonymisés (implémentée à l'étape 8)."""
+    """
+    Returns anonymized vote counts and scores per time slot (JSON).
+    """
     from django.http import JsonResponse
-    return JsonResponse({'detail': 'API disponible à l\'étape 8.'})
+    poll = get_object_or_404(Poll, pk=pk)
+    all_participants_count = poll.participants.count()
+    data = []
+    for slot in poll.time_slots.all():
+        votes = list(slot.votes.all())
+        yes = sum(1 for v in votes if v.choice == Vote.CHOICE_YES)
+        maybe = sum(1 for v in votes if v.choice == Vote.CHOICE_MAYBE)
+        no = sum(1 for v in votes if v.choice == Vote.CHOICE_NO)
+        data.append({
+            'id': str(slot.id),
+            'start': slot.start.isoformat(),
+            'end': slot.end.isoformat(),
+            'yes': yes,
+            'maybe': maybe,
+            'no': no,
+            'no_answer': all_participants_count - len(votes),
+            'score': slot.score,
+        })
+    data.sort(key=lambda x: x['score'], reverse=True)
+    return JsonResponse({'slots': data, 'total_participants': all_participants_count})
