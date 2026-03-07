@@ -1,5 +1,8 @@
-/* django-meeting — Styles de base */
-/* Les CSS custom properties sont injectées par base.html depuis SiteConfiguration */
+/* ============================================================
+   django-meeting — Styles complets
+   Les CSS custom properties --color-primary et --color-secondary
+   sont injectées par base.html depuis SiteConfiguration.
+   ============================================================ */
 
 *, *::before, *::after {
     box-sizing: border-box;
@@ -11,7 +14,7 @@ body {
     font-size: 16px;
     line-height: 1.5;
     color: #1a1a2e;
-    background-color: #f8fafc;
+    background-color: #f1f5f9;
 }
 
 .container {
@@ -20,28 +23,39 @@ body {
     padding: 0 1rem;
 }
 
-/* Header */
+/* ============================================================
+   Header
+   ============================================================ */
+
 .site-header {
     background: var(--color-primary, #2563eb);
     color: white;
-    padding: 1rem 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.875rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .site-header .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 1rem;
 }
 
 .site-brand {
     text-decoration: none;
     color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .site-name {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .site-logo {
@@ -52,31 +66,42 @@ body {
 .site-nav {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .nav-user {
     font-weight: 500;
+    opacity: 0.9;
 }
 
-/* Main */
+/* ============================================================
+   Main content
+   ============================================================ */
+
 .site-main {
     padding: 2rem 0;
-    min-height: calc(100vh - 8rem);
+    min-height: calc(100vh - 9rem);
 }
 
 /* Footer */
 .site-footer {
     background: #1e293b;
-    color: #94a3b8;
+    color: #64748b;
     padding: 1rem 0;
     text-align: center;
     font-size: 0.875rem;
 }
 
-/* Buttons */
+.site-footer p { margin: 0; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
     font-size: 0.875rem;
@@ -84,78 +109,116 @@ body {
     text-decoration: none;
     cursor: pointer;
     border: 2px solid transparent;
-    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+    line-height: 1.4;
+    white-space: nowrap;
 }
+
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btn-primary {
     background: var(--color-primary, #2563eb);
-    color: white;
+    color: white !important;
     border-color: var(--color-primary, #2563eb);
 }
-
 .btn-primary:hover {
     background: var(--color-secondary, #1e40af);
     border-color: var(--color-secondary, #1e40af);
 }
 
+.btn-secondary {
+    background: #64748b;
+    color: white !important;
+    border-color: #64748b;
+}
+.btn-secondary:hover { background: #475569; border-color: #475569; }
+
 .btn-outline {
     background: transparent;
-    color: white;
+    color: white !important;
     border-color: rgba(255,255,255,0.5);
 }
-
 .btn-outline:hover {
     background: rgba(255,255,255,0.1);
     border-color: white;
 }
 
+.btn-outline-dark {
+    background: transparent;
+    color: #374151;
+    border-color: #d1d5db;
+}
+.btn-outline-dark:hover { background: #f9fafb; border-color: #9ca3af; }
+
 .btn-danger {
     background: #dc2626;
-    color: white;
+    color: white !important;
     border-color: #dc2626;
 }
+.btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
 
-.btn-danger:hover {
-    background: #b91c1c;
-    border-color: #b91c1c;
+.btn-warning {
+    background: #d97706;
+    color: white !important;
+    border-color: #d97706;
 }
+.btn-warning:hover { background: #b45309; border-color: #b45309; }
 
-/* Messages */
-.messages {
-    margin-bottom: 1.5rem;
+.btn-cancel {
+    background: transparent;
+    color: #6b7280;
+    border-color: #e5e7eb;
 }
+.btn-cancel:hover { background: #f9fafb; color: #374151; }
+
+.btn-block { width: 100%; justify-content: center; }
+
+.btn-sm { padding: 0.25rem 0.625rem; font-size: 0.8rem; }
+
+/* ============================================================
+   Messages Django
+   ============================================================ */
+
+.messages { margin-bottom: 1.5rem; }
 
 .message {
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
     border-radius: 0.375rem;
     margin-bottom: 0.5rem;
     font-weight: 500;
+    border-left: 4px solid;
 }
 
-.message-success { background: #d1fae5; color: #065f46; }
-.message-error { background: #fee2e2; color: #991b1b; }
-.message-warning { background: #fef3c7; color: #92400e; }
-.message-info { background: #dbeafe; color: #1e40af; }
+.message-success { background: #d1fae5; color: #065f46; border-color: #10b981; }
+.message-error   { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+.message-warning { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+.message-info    { background: #dbeafe; color: #1e40af; border-color: #3b82f6; }
 
-/* Forms */
+/* ============================================================
+   Forms
+   ============================================================ */
+
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .form-group label {
     display: block;
     font-weight: 500;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
     color: #374151;
+    font-size: 0.9rem;
 }
 
 .form-control {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1.5px solid #d1d5db;
     border-radius: 0.375rem;
     font-size: 1rem;
+    background: white;
     transition: border-color 0.15s, box-shadow 0.15s;
+    color: #1a1a2e;
 }
 
 .form-control:focus {
@@ -164,23 +227,114 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Cards */
-.card {
-    background: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    padding: 1.5rem;
+.form-errors {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    color: #dc2626;
+    font-size: 0.85rem;
+}
+
+.form-help {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.help-text {
+    color: #6b7280;
+    font-size: 0.9rem;
     margin-bottom: 1rem;
 }
 
-/* Tables */
+.form-inline {
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.form-section { margin-bottom: 1.5rem; }
+.form-section h2 { margin-top: 0; font-size: 1.1rem; color: #374151; }
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+
+.card {
+    background: white;
+    border-radius: 0.625rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.card h2 { margin-top: 0; font-size: 1.1rem; }
+
+/* ============================================================
+   Page header
+   ============================================================ */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.page-header h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.75rem;
+    color: #111827;
+}
+
+.page-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.badge-active  { background: #d1fae5; color: #065f46; }
+.badge-closed  { background: #f1f5f9; color: #475569; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+
+/* ============================================================
+   Tables
+   ============================================================ */
+
+.table-responsive { overflow-x: auto; }
+
 .table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.9rem;
 }
 
 .table th, .table td {
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 0.875rem;
     text-align: left;
     border-bottom: 1px solid #e5e7eb;
 }
@@ -189,9 +343,301 @@ body {
     font-weight: 600;
     background: #f9fafb;
     color: #374151;
+    white-space: nowrap;
 }
 
-/* Responsive */
+.table tr:last-child td { border-bottom: none; }
+.text-center { text-align: center; }
+
+/* ============================================================
+   Poll list
+   ============================================================ */
+
+.poll-list { display: flex; flex-direction: column; gap: 0; }
+
+.poll-card {}
+
+.poll-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.poll-card-title {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.poll-card-title a {
+    color: #111827;
+    text-decoration: none;
+}
+
+.poll-card-title a:hover {
+    color: var(--color-primary, #2563eb);
+}
+
+.poll-card-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.poll-card-footer {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6b7280;
+}
+
+/* ============================================================
+   Poll detail
+   ============================================================ */
+
+.poll-location { color: #6b7280; margin: 0.25rem 0; }
+.poll-description { color: #374151; margin: 0.5rem 0; }
+.poll-deadline { color: #6b7280; font-size: 0.9rem; }
+
+.poll-meta .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.action-bar {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.recap-section { overflow-x: auto; }
+
+/* Recap table */
+.recap-table th { text-align: center; font-size: 0.82rem; }
+.recap-table td:first-child { text-align: left; }
+
+.slot-header { min-width: 90px; }
+.slot-end { color: #6b7280; font-size: 0.8rem; }
+.slot-score { color: #374151; font-size: 0.8rem; font-weight: 700; margin: 0.25rem 0; }
+
+.best-slot {
+    background: #fef9c3 !important;
+    border-bottom: 3px solid #f59e0b;
+}
+
+.vote-cell { text-align: center; font-size: 1.1rem; min-width: 40px; }
+.vote-cell.vote-yes    { background: #d1fae5; color: #065f46; }
+.vote-cell.vote-maybe  { background: #fef3c7; color: #92400e; }
+.vote-cell.vote-no     { background: #fee2e2; color: #991b1b; }
+
+.participant-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.participant-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    color: #374151;
+}
+
+.chosen-slot { font-size: 1.05rem; font-weight: 600; color: #065f46; }
+
+/* ============================================================
+   Poll create/edit
+   ============================================================ */
+
+.participant-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+}
+
+.participant-row .form-group { margin-bottom: 0; flex: 1; min-width: 140px; }
+
+/* ============================================================
+   Auth
+   ============================================================ */
+
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #111827;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.auth-links a { color: var(--color-primary, #2563eb); }
+
+/* ============================================================
+   FullCalendar customizations
+   ============================================================ */
+
+#calendar {
+    margin-bottom: 1.5rem;
+    min-height: 400px;
+}
+
+/* Create mode event */
+.fc-create-event {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 4px;
+    height: 100%;
+    width: 100%;
+}
+
+.fc-delete-btn {
+    background: rgba(0,0,0,0.2);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 0;
+}
+.fc-delete-btn:hover { background: rgba(0,0,0,0.4); }
+
+.fc-event-time-custom { font-size: 0.78rem; opacity: 0.9; }
+
+/* Vote mode event */
+.fc-vote-event {
+    display: flex;
+    flex-direction: column;
+    padding: 2px 4px;
+    height: 100%;
+    width: 100%;
+    gap: 2px;
+}
+
+.fc-vote-icons {
+    display: flex;
+    gap: 2px;
+}
+
+.vote-icon {
+    min-width: 28px;
+    min-height: 28px;
+    /* Minimum 44×44px tap target area via padding compensation */
+    padding: 8px;
+    margin: -8px;
+    background: rgba(255,255,255,0.2);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s, border-color 0.1s, transform 0.1s;
+    position: relative;
+    z-index: 1;
+}
+
+.vote-icon:hover { background: rgba(255,255,255,0.35); transform: scale(1.1); }
+
+.vote-icon.active {
+    background: white;
+    border-color: white;
+}
+
+.icon-yes.active  { color: #16a34a; }
+.icon-maybe.active { color: #d97706; }
+.icon-no.active   { color: #dc2626; }
+
+.fc-chosen-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+    padding: 1px 4px;
+}
+
+/* Vote summary labels */
+.vote-yes-label   { color: #16a34a; }
+.vote-maybe-label { color: #d97706; }
+.vote-no-label    { color: #dc2626; }
+
+/* Vote actions */
+.vote-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.save-status {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.save-status.saving { color: #6b7280; }
+.save-status.saved  { color: #16a34a; }
+.save-status.error  { color: #dc2626; }
+
+/* ============================================================
+   Poll closed — chosen slot banner
+   ============================================================ */
+
+.chosen-slot-banner { border-left: 5px solid #10b981; }
+.chosen-slot-details {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #065f46;
+    padding: 0.5rem 0;
+}
+
+.chosen-row { background: #f0fdf4; font-weight: 600; }
+.chosen-row td { border-bottom: 2px solid #10b981; }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
 @media (max-width: 768px) {
     .site-header .container {
         flex-direction: column;
@@ -199,8 +645,36 @@ body {
         text-align: center;
     }
 
-    .site-nav {
-        flex-wrap: wrap;
-        justify-content: center;
+    .site-nav { flex-wrap: wrap; justify-content: center; }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
+
+    .page-actions { margin-top: 0.5rem; }
+
+    .poll-card-header { flex-direction: column; align-items: flex-start; }
+
+    .meta-grid { grid-template-columns: 1fr !important; }
+
+    .action-bar { flex-direction: column; align-items: flex-start; }
+
+    .form-actions { flex-direction: column; }
+    .form-actions .btn { width: 100%; justify-content: center; }
+
+    .participant-row { flex-direction: column; }
+    .participant-row .form-group { width: 100%; }
+
+    .vote-icon {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .auth-card { margin: 0; }
+}
+
+@media (max-width: 480px) {
+    .site-main { padding: 1rem 0; }
+    .card { padding: 1rem; }
 }
