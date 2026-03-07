@@ -49,7 +49,35 @@
     const slotId = info.event.extendedProps.slotId;
     const isChosen = info.event.extendedProps.isChosen;
     const choice = voteState[slotId] || '';
+    const isMonthView = info.view.type === 'dayGridMonth';
 
+    // ── Month view: compact single-line (time + choice symbol, click cycles through choices) ──
+    if (isMonthView) {
+      const choiceSymbol = choice === 'yes' ? ' ✓' : choice === 'maybe' ? ' ?' : choice === 'no' ? ' ✗' : '';
+      const container = document.createElement('div');
+      container.className = 'fc-month-event';
+
+      const inner = document.createElement('span');
+      inner.textContent = info.timeText + choiceSymbol;
+      if (isChosen) inner.textContent += ' ★';
+      container.appendChild(inner);
+
+      if (!isClosed) {
+        container.title = 'Cliquer pour changer le vote';
+        container.style.cursor = 'pointer';
+        container.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const order = ['', 'yes', 'maybe', 'no'];
+          const next = order[(order.indexOf(choice) + 1) % order.length];
+          voteState[slotId] = next;
+          calendar.refetchEvents();
+        });
+      }
+
+      return { domNodes: [container] };
+    }
+
+    // ── Week/day view: full interactive content ──
     const timeEl = document.createElement('div');
     timeEl.className = 'fc-event-time-custom';
     timeEl.textContent = info.timeText;
@@ -65,7 +93,6 @@
     }
 
     if (!isClosed) {
-      // Render vote icons
       const icons = document.createElement('div');
       icons.className = 'fc-vote-icons';
 

@@ -542,7 +542,22 @@ body {
 
 .fc-event-time-custom { font-size: 0.78rem; opacity: 0.9; }
 
-/* Vote mode event */
+/* Vote mode event — month view compact */
+.fc-month-event {
+    display: flex;
+    align-items: center;
+    padding: 1px 4px;
+    height: 100%;
+    width: 100%;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    gap: 3px;
+}
+
+/* Vote mode event — week/day view */
 .fc-vote-event {
     display: flex;
     flex-direction: column;
