@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_config.site_name }}{% endblock %}</title>
+    <style>
+        :root {
+            --color-primary: {{ site_config.primary_color }};
+            --color-secondary: {{ site_config.secondary_color }};
+        }
+    </style>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a href="/" class="site-brand">
+                {% if site_config.logo %}
+                    <img src="{{ site_config.logo.url }}" alt="{{ site_config.site_name }}" class="site-logo">
+                {% else %}
+                    <span class="site-name">{{ site_config.site_name }}</span>
+                {% endif %}
+            </a>
+            <nav class="site-nav">
+                {% if user.is_authenticated %}
+                    <span class="nav-user">{{ user.get_full_name|default:user.username }}</span>
+                    <a href="/logout/" class="btn btn-outline">Déconnexion</a>
+                {% else %}
+                    <a href="/login/" class="btn btn-primary">Connexion</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message message-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; {% now "Y" %} {{ site_config.site_name }}</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
