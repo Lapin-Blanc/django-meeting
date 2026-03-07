@@ -27,7 +27,10 @@
             <nav class="site-nav">
                 {% if user.is_authenticated %}
                     <span class="nav-user">{{ user.get_full_name|default:user.username }}</span>
-                    <a href="/logout/" class="btn btn-outline">Déconnexion</a>
+                    <form method="post" action="/logout/" style="display:inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline">Déconnexion</button>
+                    </form>
                 {% else %}
                     <a href="/login/" class="btn btn-primary">Connexion</a>
                 {% endif %}

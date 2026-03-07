@@ -115,7 +115,10 @@
     allDaySlot: false,
     editable: false,
     selectable: false,
-    events: buildEvents,
+    // Use function-based event source with FullCalendar v6 callback API
+    events: function (fetchInfo, successCallback) {
+      successCallback(buildEvents());
+    },
     eventContent: renderEventContent,
   });
 

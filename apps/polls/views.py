@@ -119,8 +119,11 @@ def poll_edit(request, pk):
         'end': s['end'].isoformat(),
     } for s in existing_slots])
 
-    # Existing participants
-    existing_participants = list(poll.participants.values('id', 'name', 'email'))
+    # Existing participants (convert UUIDs to strings for JSON serialization)
+    existing_participants = [
+        {'id': str(p.id), 'name': p.name, 'email': p.email}
+        for p in poll.participants.all()
+    ]
 
     if request.method == 'POST':
         poll_form = PollForm(request.POST, instance=poll)
