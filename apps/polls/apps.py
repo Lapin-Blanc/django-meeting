@@ -14,12 +14,19 @@ class PollsConfig(AppConfig):
 
     def _start_scheduler(self):
         """Register and start APScheduler jobs."""
+        import os
         import sys
+
         # Don't run scheduler in management commands (except runserver)
-        # and don't run it twice (APScheduler would raise)
         skip_commands = {'test', 'migrate', 'makemigrations', 'check', 'collectstatic',
                          'shell', 'dbshell', 'createsuperuser', 'changepassword'}
         if any(cmd in sys.argv for cmd in skip_commands):
+            return
+
+        # In Django's runserver with auto-reloader, the app is loaded twice:
+        # once in the parent watcher process and once in the actual server subprocess.
+        # Only start the scheduler in the actual server process (RUN_MAIN=true).
+        if 'runserver' in sys.argv and not os.environ.get('RUN_MAIN'):
             return
 
         try:
