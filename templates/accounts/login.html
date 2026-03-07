@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion — {{ site_config.site_name }}{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card card">
+        <h1 class="auth-title">Connexion</h1>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="form-errors">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+                <div class="message message-error">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+        </form>
+        <p class="auth-links">
+            <a href="{% url 'accounts:password_reset' %}">Mot de passe oublié ?</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
