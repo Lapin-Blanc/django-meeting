@@ -49,8 +49,29 @@
     const slotId = info.event.extendedProps.slotId;
     const isChosen = info.event.extendedProps.isChosen;
     const choice = voteState[slotId] || '';
+    const viewType = info.view.type;
 
-    // Single layout: horizontal row (time + icons) works in all views
+    // Month view: compact single-line (dot event in dayGridMonth is ~18px tall,
+    // buttons don't fit — use click-to-cycle interaction instead)
+    if (viewType === 'dayGridMonth') {
+      const icon = isChosen ? '★' : choice === 'yes' ? '✓' : choice === 'maybe' ? '?' : choice === 'no' ? '✗' : '';
+      const el = document.createElement('span');
+      el.className = 'fc-vote-compact';
+      el.title = !isClosed ? 'Cliquez pour voter' : '';
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'fc-vote-compact-time';
+      timeSpan.textContent = info.timeText;
+      el.appendChild(timeSpan);
+      if (icon) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'fc-vote-compact-icon';
+        iconSpan.textContent = ' ' + icon;
+        el.appendChild(iconSpan);
+      }
+      return { domNodes: [el] };
+    }
+
+    // Week/day views: full layout with vote icon buttons
     const container = document.createElement('div');
     container.className = 'fc-vote-event';
 
@@ -94,6 +115,18 @@
     return { domNodes: [container] };
   }
 
+  // Month view: click cycles through vote states (no buttons visible)
+  function handleEventClick(info) {
+    if (info.view.type !== 'dayGridMonth') return;
+    if (isClosed) return;
+    info.jsEvent.preventDefault();
+    const slotId = info.event.extendedProps.slotId;
+    const current = voteState[slotId] || '';
+    const cycle = { '': 'yes', 'yes': 'maybe', 'maybe': 'no', 'no': '' };
+    voteState[slotId] = cycle[current];
+    calendar.refetchEvents();
+  }
+
   const calendarEl = document.getElementById('calendar');
   const isMobile = window.innerWidth < 768;
 
@@ -116,6 +149,7 @@
       successCallback(buildEvents());
     },
     eventContent: renderEventContent,
+    eventClick: handleEventClick,
   });
 
   calendar.render();

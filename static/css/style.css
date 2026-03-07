@@ -542,7 +542,24 @@ body {
 
 .fc-event-time-custom { font-size: 0.78rem; opacity: 0.9; }
 
-/* Vote mode event — layout horizontal unique (fonctionne mois ET semaine) */
+/* Month view compact event (dayGridMonth) */
+.fc-vote-compact {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 0.78rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.fc-vote-compact-time {
+    opacity: 0.9;
+}
+.fc-vote-compact-icon {
+    font-weight: 700;
+}
+
+/* Week/day view vote event */
 .fc-vote-event {
     display: flex;
     flex-direction: row;
