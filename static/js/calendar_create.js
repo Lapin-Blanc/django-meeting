@@ -91,6 +91,13 @@
       right: isMobile ? 'timeGridDay,listWeek' : 'timeGridWeek,dayGridMonth',
     },
     locale: 'fr',
+    buttonText: {
+      today: "Aujourd'hui",
+      month: 'Mois',
+      week: 'Semaine',
+      day: 'Jour',
+      list: 'Agenda',
+    },
     firstDay: 1,
     slotMinTime: '07:00:00',
     slotMaxTime: '22:00:00',

@@ -4,7 +4,6 @@
 {% block title %}Nouveau sondage — {{ site_config.site_name }}{% endblock %}
 
 {% block extra_head %}
-<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 {% endblock %}
 
@@ -59,12 +58,7 @@
                         </div>
                     {% endfor %}
                     {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-                    {% if participant_formset.can_delete %}
-                        <div class="form-group">
-                            {{ form.DELETE.label_tag }}
-                            {{ form.DELETE }}
-                        </div>
-                    {% endif %}
+                    <button type="button" class="btn-remove-participant" title="Retirer ce participant">×</button>
                 </div>
             {% endfor %}
         </div>
@@ -81,26 +75,50 @@
 {% block extra_js %}
 <script src="{% static 'js/calendar_create.js' %}"></script>
 <script>
-// Dynamic participant rows
+function reindexParticipantRows() {
+    const container = document.getElementById('participants-container');
+    const rows = container.querySelectorAll('.participant-row');
+    const totalForms = document.getElementById('id_participants-TOTAL_FORMS');
+    rows.forEach(function(row, idx) {
+        row.querySelectorAll('input, select, textarea').forEach(function(input) {
+            input.name = input.name.replace(/-\d+-/, `-${idx}-`);
+            input.id = input.id.replace(/-\d+-/, `-${idx}-`);
+        });
+        row.querySelectorAll('label').forEach(function(label) {
+            label.htmlFor = label.htmlFor.replace(/-\d+-/, `-${idx}-`);
+        });
+    });
+    totalForms.value = rows.length;
+}
+
+function addRemoveButton(row) {
+    row.querySelector('.btn-remove-participant').addEventListener('click', function() {
+        row.remove();
+        reindexParticipantRows();
+    });
+}
+
+// Attach remove button to initial row
+document.querySelectorAll('.participant-row').forEach(addRemoveButton);
+
 document.getElementById('add-participant').addEventListener('click', function() {
     const container = document.getElementById('participants-container');
-    const forms = container.querySelectorAll('.participant-row');
-    const totalForms = document.getElementById('id_participants-TOTAL_FORMS');
-    const newIndex = parseInt(totalForms.value);
+    const rows = container.querySelectorAll('.participant-row');
+    const newIndex = rows.length;
 
-    const template = forms[0].cloneNode(true);
+    const template = rows[0].cloneNode(true);
     template.querySelectorAll('input, select, textarea').forEach(function(input) {
         input.name = input.name.replace(/-\d+-/, `-${newIndex}-`);
         input.id = input.id.replace(/-\d+-/, `-${newIndex}-`);
-        if (input.type !== 'checkbox') input.value = '';
-        else input.checked = false;
+        input.value = '';
     });
     template.querySelectorAll('label').forEach(function(label) {
         label.htmlFor = label.htmlFor.replace(/-\d+-/, `-${newIndex}-`);
     });
 
     container.appendChild(template);
-    totalForms.value = newIndex + 1;
+    document.getElementById('id_participants-TOTAL_FORMS').value = newIndex + 1;
+    addRemoveButton(template);
 });
 </script>
 {% endblock %}

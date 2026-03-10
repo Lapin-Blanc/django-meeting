@@ -4,7 +4,6 @@
 {% block title %}Modifier — {{ poll.title }} — {{ site_config.site_name }}{% endblock %}
 
 {% block extra_head %}
-<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
 {% endblock %}
 
@@ -42,11 +41,12 @@
         {% if poll.participants.all %}
         <div class="existing-participants-list">
             <p class="help-text">Participants actuels :</p>
-            <ul class="participant-list">
+            <ul class="participant-list" id="existing-participants-list">
                 {% for p in poll.participants.all %}
-                <li class="participant-item">
+                <li class="participant-item" data-id="{{ p.id }}">
                     <span class="participant-name">{{ p.name }}</span>
                     <span class="participant-email">{{ p.email }}</span>
+                    <button type="button" class="btn-remove-participant" title="Retirer ce participant">×</button>
                 </li>
                 {% endfor %}
             </ul>
@@ -54,6 +54,7 @@
         {% endif %}
         <p class="help-text">Ajoutez de nouveaux participants (les participants existants ne seront pas modifiés).</p>
         <input type="hidden" name="participants_json" id="id_participants_json" value="[]">
+        <input type="hidden" name="participants_remove_json" id="id_participants_remove_json" value="[]">
         <div id="new-participants"></div>
         <button type="button" id="add-participant" class="btn btn-outline-dark">+ Ajouter un participant</button>
     </div>
@@ -72,6 +73,16 @@ const EXISTING_PARTICIPANTS = {{ existing_participants|safe }};
 </script>
 <script src="{% static 'js/calendar_create.js' %}"></script>
 <script>
+// Remove existing participants
+const removedParticipantIds = [];
+document.querySelectorAll('#existing-participants-list .btn-remove-participant').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const li = btn.closest('.participant-item');
+        removedParticipantIds.push(li.dataset.id);
+        li.remove();
+    });
+});
+
 // New participants management
 const newParticipants = [];
 document.getElementById('add-participant').addEventListener('click', function() {
@@ -102,6 +113,7 @@ document.getElementById('poll-edit-form').addEventListener('submit', function() 
         if (name && email) participants.push({name, email});
     });
     document.getElementById('id_participants_json').value = JSON.stringify(participants);
+    document.getElementById('id_participants_remove_json').value = JSON.stringify(removedParticipantIds);
 });
 </script>
 {% endblock %}

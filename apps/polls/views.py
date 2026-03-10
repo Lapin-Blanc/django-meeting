@@ -11,7 +11,7 @@ from .forms import PollCreateForm, PollForm, ParticipantForm
 from .tokens import generate_participant_token
 
 
-ParticipantFormSet = formset_factory(ParticipantForm, extra=1, can_delete=True)
+ParticipantFormSet = formset_factory(ParticipantForm, extra=1, can_delete=False)
 
 
 @login_required
@@ -142,46 +142,61 @@ def poll_edit(request, pk):
         except (json.JSONDecodeError, ValueError):
             new_participants = []
 
+        remove_participants_json = request.POST.get('participants_remove_json', '[]')
+        try:
+            remove_participant_ids = json.loads(remove_participants_json)
+        except (json.JSONDecodeError, ValueError):
+            remove_participant_ids = []
+
         if poll_form.is_valid():
-            poll_form.save()
+            from .forms import deadline_before_slots
+            deadline = poll_form.cleaned_data.get('deadline')
+            if new_slots and deadline and not deadline_before_slots(deadline, new_slots):
+                poll_form.add_error('deadline', 'La date limite de vote doit être antérieure à tous les créneaux horaires.')
+            else:
+                poll_form.save()
 
-            # Update time slots: delete removed, create new
-            submitted_ids = {s.get('id') for s in new_slots if s.get('id')}
-            existing_ids = {str(s['id']) for s in existing_slots}
+                # Update time slots: delete removed, create new
+                submitted_ids = {s.get('id') for s in new_slots if s.get('id')}
+                existing_ids = {str(s['id']) for s in existing_slots}
 
-            # Delete removed slots
-            deleted_ids = existing_ids - submitted_ids
-            if deleted_ids:
-                TimeSlot.objects.filter(id__in=deleted_ids, poll=poll).delete()
+                # Delete removed slots
+                deleted_ids = existing_ids - submitted_ids
+                if deleted_ids:
+                    TimeSlot.objects.filter(id__in=deleted_ids, poll=poll).delete()
 
-            # Create new slots (those without an ID)
-            for slot in new_slots:
-                if not slot.get('id'):
-                    TimeSlot.objects.create(
-                        poll=poll,
-                        start=slot['start'],
-                        end=slot['end'],
-                    )
+                # Create new slots (those without an ID)
+                for slot in new_slots:
+                    if not slot.get('id'):
+                        TimeSlot.objects.create(
+                            poll=poll,
+                            start=slot['start'],
+                            end=slot['end'],
+                        )
 
-            # Handle new participants
-            existing_emails = {p['email'] for p in existing_participants}
-            new_invites = []
-            for p in new_participants:
-                if p.get('email') and p['email'] not in existing_emails:
-                    participant = Participant.objects.create(
-                        poll=poll,
-                        name=p.get('name', ''),
-                        email=p['email'],
-                        token=generate_participant_token(),
-                    )
-                    new_invites.append(participant)
+                # Remove participants marked for deletion
+                if remove_participant_ids:
+                    Participant.objects.filter(id__in=remove_participant_ids, poll=poll).delete()
 
-            if new_invites:
-                from .email import send_invitations
-                send_invitations(poll, new_invites, request)
+                # Handle new participants
+                existing_emails = {p['email'] for p in existing_participants if str(p['id']) not in remove_participant_ids}
+                new_invites = []
+                for p in new_participants:
+                    if p.get('email') and p['email'] not in existing_emails:
+                        participant = Participant.objects.create(
+                            poll=poll,
+                            name=p.get('name', ''),
+                            email=p['email'],
+                            token=generate_participant_token(),
+                        )
+                        new_invites.append(participant)
 
-            messages.success(request, 'Sondage mis à jour avec succès.')
-            return redirect('polls:poll_detail', pk=poll.pk)
+                if new_invites:
+                    from .email import send_invitations
+                    send_invitations(poll, new_invites, request)
+
+                messages.success(request, 'Sondage mis à jour avec succès.')
+                return redirect('polls:poll_detail', pk=poll.pk)
     else:
         poll_form = PollForm(instance=poll)
 

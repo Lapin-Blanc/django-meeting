@@ -1,7 +1,22 @@
 import json
 from django import forms
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from .models import Poll, Participant
+
+
+def deadline_before_slots(deadline, slots):
+    """Return True if deadline is strictly before all slot start times."""
+    starts = []
+    for s in slots:
+        start_str = s.get('start')
+        if start_str:
+            dt = parse_datetime(start_str)
+            if dt is not None:
+                if timezone.is_naive(dt):
+                    dt = timezone.make_aware(dt)
+                starts.append(dt)
+    return not starts or deadline < min(starts)
 
 
 class PollForm(forms.ModelForm):
@@ -67,6 +82,14 @@ class PollCreateForm(PollForm):
             'deadline': self.fields['deadline'],
             'time_slots_json': self.fields['time_slots_json'],
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        deadline = cleaned_data.get('deadline')
+        slots = cleaned_data.get('time_slots_json')
+        if deadline and slots and not deadline_before_slots(deadline, slots):
+            self.add_error('deadline', 'La date limite de vote doit être antérieure à tous les créneaux horaires.')
+        return cleaned_data
 
 
 class ParticipantFormSet(forms.BaseFormSet):
